@@ -1,0 +1,21 @@
+{
+    "ip": "127.0.0.1",
+    "port": 1025,
+    "loglevel": "DEBUG",
+    "targets": {
+        "hosts": [
+            {
+                "regex": "^.*@example.com$",
+                "host": "mail.example.com",
+                "port": "25"
+            }
+        ],
+        "docker": [
+            {
+                "regex": "^.*@example.net$",
+                "container": "dockermail",
+                "internal_port": 25
+            }
+        ]
+    }
+}
