@@ -15,10 +15,6 @@ from rsmtpd import RSMTPDServer
               type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR',
                                  'CRITICAL']))
 def main(config, **kwargs):
-    if not os.path.isfile(config):
-        logger.error("config.json was not found!")
-        sys.exit(1)
-
     config_file = open(config)
     config = json.load(config_file)
     config_file.close
