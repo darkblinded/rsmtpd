@@ -26,7 +26,7 @@ class RSMTPDServer(smtpd.SMTPServer):
                                     .Target.get_instances(config=self.config[
                                         targets.__name__][m]))
             else:
-                self._logger.debug("No configuration found for target-module" +
+                self._logger.debug("No configuration found for target-module"
                                    " {} - Skipping module...".format(m))
 
         self._logger.debug("Parsed the following hosts:")
