@@ -18,15 +18,16 @@ class RSMTPDServer(smtpd.SMTPServer):
 
         self.config = config
         self.target_list = []
-
-        # TODO Handle missing parts in config
-
         for m in targets.__all__:
-            self._logger.debug("Initializing target-module {}".format(m))
-            self.target_list = (self.target_list +
-                                sys.modules['.'.join((targets.__name__, m))]
-                                .Target.get_instances(
-                                    config=self.config[targets.__name__][m]))
+            if m in self.config[targets.__name__]:
+                self._logger.debug("Initializing target-module {}".format(m))
+                self.target_list = (self.target_list + sys.modules['.'
+                                    .join((targets.__name__, m))]
+                                    .Target.get_instances(config=self.config[
+                                        targets.__name__][m]))
+            else:
+                self._logger.debug("No configuration found for target-module" +
+                                   " {} - Skipping module...".format(m))
 
         self._logger.debug("Parsed the following hosts:")
         for item in self.target_list:
