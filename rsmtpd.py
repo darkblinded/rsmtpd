@@ -51,14 +51,36 @@ class RSMTPDServer(smtpd.SMTPServer):
                 if re.match(target.get_regex(), rcpt):
                     self._logger.debug("Got match for host {}"
                                        .format(str(target)))
-                    server = smtplib.SMTP(host=target.get_ip(),
-                                          port=target.get_port())
-                    server.set_debuglevel(True)
                     try:
-                        server.sendmail(mailfrom, [rcpt], data)
-                    # TODO Handle connection problems
-                    finally:
-                        server.quit()
+                        server = smtplib.SMTP(host=target.get_ip(),
+                                              port=target.get_port())
+                        server.set_debuglevel(True)
+                        try:
+                            server.sendmail(mailfrom, [rcpt], data)
+                        except smtplib.SMTPRecipientsRefused:
+                            self._logger.error("The server at {} refused all "
+                                               "recipients"
+                                               .format(str(target)))
+                        except smtplib.SMTPHeloError:
+                            self._logger.error("The server at {} didn’t reply "
+                                               "properly to the HELO greeting"
+                                               .format(str(target)))
+                        except smtplib.SMTPSenderRefused:
+                            self._logger.error("The server at {} didn’t accept"
+                                               " the sender address"
+                                               .format(str(target)))
+                        except smtplib.SMTPDataError:
+                            self._logger.error("The server at {} replied with "
+                                               "an nexpected error code (other"
+                                               " than a refusal of a "
+                                               "recipient)"
+                                               .format(str(target)))
+                        finally:
+                            server.quit()
+                    except:
+                        self._logger.error("Error occurred while trying to "
+                                           "connect to server at {}"
+                                           .format(str(target)))
 
                     accepted = True
 
