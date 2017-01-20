@@ -3,11 +3,12 @@ import json
 import logging
 import os
 import asyncore
+import sys
 from rsmtpd import RSMTPDServer
 
 
 @click.command()
-@click.option("--config", help="Path to config.json", type=click.File('rb'),
+@click.option("--config", help="Path to config.json", type=click.File('r'),
               default="./config.json")
 @click.option("--ip", help="IP to which server will bind")
 @click.option("--port", type=click.INT, help="Port to which server will bind")
@@ -15,9 +16,13 @@ from rsmtpd import RSMTPDServer
               type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR',
                                  'CRITICAL']))
 def main(config, **kwargs):
-    config_file = open(config)
-    config = json.load(config_file)
-    config_file.close
+    config_file = config
+    try:
+        config = json.load(config_file)
+    except json.decoder.JSONDecodeError:
+        click.echo(message="Error: Parsing config failed: Invalid JSON syntax", err=True)
+        sys.exit(1)
+    config_file.close()
 
     config = validate_config(config, kwargs)
 
