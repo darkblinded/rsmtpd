@@ -28,7 +28,7 @@ def main(config, **kwargs):
 
     logging.basicConfig(level=config["loglevel"],
                         datefmt='%H:%M:%S',
-                        format='%(asctime)s.%(msecs)03d %(name)s %(levelname' +
+                        format='%(asctime)s.%(msecs)03d %(name)s %(levelname'
                         ')s %(message)s')
     logger = logging.getLogger(name="init")
     logger.info("Starting rsmptd...")
