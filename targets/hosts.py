@@ -52,8 +52,6 @@ class Target(targets.api.Target):
         for item in config:
             # TODO Test if regex exists in config.json
             # --> Just forward to both and maybe add detection+warning later
-            # TODO Test if host exists in config.json
-            # --> Just forward to both and maybe add detection+warning later
 
             try:
                 """Try parsing and validate range"""
