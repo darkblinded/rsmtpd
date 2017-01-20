@@ -44,18 +44,16 @@ def main(config, **kwargs):
 
 def validate_config(config, parameters):
     if "targets" not in config or len(config["targets"]) == 0:
-        logger.info("No targets configured. Exiting...")
+        click.echo("No targets configured. Exiting...")
         sys.exit(0)
 
     if parameters["ip"] is not None:
         config["ip"] = parameters["ip"]
-        logger.debug("Choosing ip from parameters over config file")
     if "ip" not in config:
         config["ip"] = "127.0.0.1"
 
     if parameters["port"] is not None:
         config["port"] = parameters["port"]
-        logger.debug("Choosing port from parameters over config file")
     if "port" not in config:
         config["port"] = 25
     try:
