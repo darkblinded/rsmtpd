@@ -2,6 +2,8 @@ import smtpd
 import smtplib
 import re
 import logging
+import sys
+import targets
 from targets import *
 
 
@@ -17,25 +19,14 @@ class RSMTPDServer(smtpd.SMTPServer):
         self.config = config
         self.target_list = []
 
-        # self.target_list.append(targets.target.Target.get_instances(
-        #     config=self.config[targets.target.config_indentifier]))
-        # self.target_list.append(targets.docker.DockerTarget.get_instances(
-        #     config=self.config[targets.docker.config_indentifier]))
-
-        # self.target_list.append(targets.target.Target.get_instances(
-        #     config=self.config[targets.target.config_indentifier]))
-        # self.target_list.append(targets.docker.Target.get_instances(
-        #     config=self.cyonfig[targets.docker.config_indentifier]))
-
         # TODO Handle missing parts in config
-        # TODO Auto-import
-        self.target_list = (self.target_list + targets.hosts.Target
-                            .get_instances(config=self.config["targets"][
-                                    targets.hosts.config_indentifier]))
 
-        self.target_list = (self.target_list + targets.docker.Target
-                            .get_instances(config=self.config["targets"][
-                                    targets.docker.config_indentifier]))
+        for m in targets.__all__:
+            self._logger.debug("Initializing target-module {}".format(m))
+            self.target_list = (self.target_list +
+                                sys.modules['.'.join((targets.__name__, m))]
+                                .Target.get_instances(
+                                    config=self.config[targets.__name__][m]))
 
         self._logger.debug("Parsed the following hosts:")
         for item in self.target_list:

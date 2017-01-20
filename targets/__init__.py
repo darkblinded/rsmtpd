@@ -1,1 +1,2 @@
-__all__ = ["api", "hosts", "docker"]
+__all__ = ["hosts", "docker"]
+__name__ = "targets"
