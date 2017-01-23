@@ -2,6 +2,8 @@ import socket
 import targets.api
 import logging
 import docker
+import requests
+import sys
 
 
 __name__ = "docker"
@@ -32,18 +34,18 @@ class Target(targets.api.Target):
 
         self._client = docker.from_env()
 
-    def get_ip():
+    def get_ip(self):
         """Returns a string containing the target's IP address"""
         # raise NotImplementedError  # TODO
-        print(client.containers.get(self._container)
-              .attrs["NetworkSettings"]["Gateway"])
+        return (self._client.inspect_container(self._container)
+                ["NetworkSettings"]["Gateway"])
 
-    def get_port():
+    def get_port(self):
         """Returns the target's port"""
         # raise NotImplementedError  # TODO
-        print(int(client.containers.get(self._container)
-                  .attrs["NetworkSettings"]["Ports"]
-                  [str(internal_port) + "/tcp"][0]["HostPort"]))
+        return (int(self._client.inspect_container(self._container)
+                ["NetworkSettings"]["Ports"]
+                [str(self._internal_port) + "/tcp"][0]["HostPort"]))
 
     def get_instances(config):
         """
@@ -55,6 +57,38 @@ class Target(targets.api.Target):
             A list of DockerTargets containing a target for every entry
             in config.json["targets"]["docker"]
         """
+        try:
+            # Testing docker connectivity
+            docker.from_env().containers()
+        except Exception as e:
+            cause = ""
+            e.__cause__ = e
+            try:
+                raise e.__cause__ from e.__cause__.__context__
+            except requests.exceptions.ConnectionError as e:
+                try:
+                    raise e.__cause__ from e.__cause__.__context__
+                except requests.packages.urllib3.exceptions.ProtocolError as e:
+                    try:
+                        raise e.__cause__ from e.__cause__.__context__
+                    except PermissionError as e:
+                        cause = ("Permissions denied. Please run with docker "
+                                 "privileges")
+                    except Exception as e:
+                        cause = ("Unknown protocol error " + str(e) +
+                                 ". Please create an issue at "
+                                 "https://github.com/darkblinded/rsmtpd/issues"
+                                 "/new")
+                except Exception as e:
+                    cause = ("Unknown connection error " + str(e) +
+                             ". Please create an issue at "
+                             "https://github.com/darkblinded/rsmtpd/issues"
+                             "/new")
+            logging.getLogger(
+                name=__name__ + "-target").critical(
+                "Cannot connect to docker socket: " + cause)
+            sys.exit(1)
+
         instances = []
         for item in config:
             # TODO Test if regex exists in config.json
