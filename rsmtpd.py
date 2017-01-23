@@ -51,10 +51,10 @@ class RSMTPDServer(smtpd.SMTPServer):
                 if re.match(target.get_regex(), rcpt):
                     self._logger.debug("Got match for host {}"
                                        .format(str(target)))
-                    self._logger.debug("IP:   {}".format(target.get_ip()))
-                    self._logger.debug("Port: {}".format(target.get_port()))
                     try:
-                        self._logger.debug("Opening SMTP session to mailserver at {} port {}".format(target.get_ip(), target.get_port()))
+                        self._logger.debug("Opening SMTP session to mailserver"
+                        " at {} port {}".format(target.get_ip(),
+                                                target.get_port()))
                         server = smtplib.SMTP(host=target.get_ip(),
                                               port=target.get_port())
                         server.set_debuglevel(True)
